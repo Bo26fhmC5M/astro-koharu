@@ -1,0 +1,188 @@
+---
+import { Icon } from 'astro-icon/components';
+import { live2dConfig } from '../config';
+import { resolveLive2DLayout } from '../layout';
+
+const layout = resolveLive2DLayout(live2dConfig.widgetWidthPx, live2dConfig.widgetHeightPx);
+const widgetStyle = [
+  `--live2d-widget-width: ${layout.widgetWidthPx}px`,
+  `--live2d-widget-height: ${layout.widgetHeightPx}px`,
+  `--live2d-canvas-width: ${layout.canvasWidthPx}px`,
+  `--live2d-canvas-height: ${layout.canvasHeightPx}px`,
+].join('; ');
+---
+
+<div data-live2d-root data-status="loading" transition:persist="live2d-widget" style={widgetStyle}>
+  <button data-live2d-toggle type="button" aria-label="Display Live2D character" hidden>
+    <Icon name="ri:user-smile-line" />
+  </button>
+
+  <section data-live2d-widget aria-label="Live2D widget" aria-hidden="false">
+    <div data-live2d-message data-visible="false" aria-live="polite" aria-hidden="true"></div>
+    <canvas id="live2d" width={layout.canvasWidthPx} height={layout.canvasHeightPx} aria-label="Live2D character"></canvas>
+    <nav aria-label="Live2D tools">
+      <button data-live2d-tool="hitokoto" type="button" aria-label="Show hitokoto"><Icon name="ri:chat-quote-line" /></button>
+      <button data-live2d-tool="photo" type="button" aria-label="Take photo"><Icon name="ri:camera-line" /></button>
+      <button data-live2d-tool="info" type="button" aria-label="Open info"><Icon name="ri:information-line" /></button>
+      <button data-live2d-tool="quit" type="button" aria-label="Hide Live2D character"><Icon name="ri:close-line" /></button>
+    </nav>
+  </section>
+</div>
+
+<script>
+  import { mountLive2DWidget } from '../widget-client';
+
+  mountLive2DWidget();
+</script>
+
+<style>
+  [data-live2d-root] {
+    position: fixed;
+    z-index: 20;
+    inset: auto auto 0 0;
+    width: var(--live2d-widget-width);
+    height: var(--live2d-widget-height);
+    pointer-events: none;
+  }
+
+  [data-live2d-root][data-viewport-hidden] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  [data-live2d-widget] {
+    position: fixed;
+    z-index: 1;
+    bottom: 0;
+    left: 0;
+    width: var(--live2d-widget-width);
+    height: var(--live2d-widget-height);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 300ms ease, transform 300ms ease, visibility 300ms;
+  }
+
+  [data-live2d-root][data-status='loading'] [data-live2d-widget] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  [data-live2d-root][data-status='hidden'] [data-live2d-widget],
+  [data-live2d-root][data-status='error'] [data-live2d-widget] {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-110%);
+  }
+
+  [data-live2d-toggle] {
+    position: fixed;
+    z-index: 3;
+    bottom: 3rem;
+    left: 0;
+    width: 2.5rem;
+    height: 3rem;
+    border: 1px solid hsl(var(--primary) / 0.35);
+    border-left: 0;
+    border-radius: 0 0.75rem 0.75rem 0;
+    color: hsl(var(--primary));
+    background: hsl(var(--muted) / 0.94);
+    box-shadow: 0 4px 18px rgb(0 0 0 / 14%);
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  [data-live2d-toggle][hidden] {
+    display: none;
+  }
+
+  [data-live2d-message] {
+    position: absolute;
+    z-index: 0;
+    right: 0.625rem;
+    bottom: calc(var(--live2d-canvas-height) - 3.125rem);
+    left: 1.125rem;
+    width: auto;
+    min-height: 5rem;
+    padding: 0.75rem 1rem 2.25rem;
+    border: 1px solid hsl(var(--primary) / 0.28);
+    border-radius: 0.75rem;
+    color: hsl(var(--foreground));
+    background: hsl(var(--muted) / 0.94);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 24%);
+    backdrop-filter: blur(8px);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    transition: opacity 200ms ease, transform 200ms ease;
+    pointer-events: none;
+  }
+
+  [data-live2d-message][data-visible='true'] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  #live2d {
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--live2d-canvas-width);
+    height: var(--live2d-canvas-height);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  #live2d:active {
+    cursor: grabbing;
+  }
+
+  nav {
+    position: absolute;
+    z-index: 2;
+    right: 0.25rem;
+    bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+
+  [data-live2d-widget]:hover nav,
+  nav:focus-within {
+    opacity: 1;
+  }
+
+  nav button {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid hsl(var(--border) / 0.9);
+    border-radius: 999px;
+    place-items: center;
+    color: hsl(var(--foreground));
+    background: hsl(var(--muted) / 0.94);
+    box-shadow: 0 3px 10px rgb(0 0 0 / 24%);
+    cursor: pointer;
+  }
+
+  nav button:hover,
+  nav button:focus-visible {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.16);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-live2d-widget],
+    [data-live2d-message],
+    nav {
+      transition: none;
+    }
+  }
+</style>

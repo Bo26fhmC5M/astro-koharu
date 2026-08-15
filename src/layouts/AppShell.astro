@@ -25,6 +25,7 @@ import ImageLightbox from '@components/markdown/ImageLightbox';
 import SettingsPanel from '@components/settings/SettingsPanel';
 import { Toaster } from '@components/ui/sonner';
 import { bgmConfig } from '@constants/site-config';
+import Live2DWidget from '@/features/live2d/components/Live2DWidget.astro';
 
 const { post, siderType, isPostPage } = Astro.props;
 ---
@@ -51,4 +52,5 @@ const { post, siderType, isPostPage } = Astro.props;
   <Toaster client:idle />
   <AnnouncementProvider />
   <CodePenEmbed />
+  <Live2DWidget />
 </div>
