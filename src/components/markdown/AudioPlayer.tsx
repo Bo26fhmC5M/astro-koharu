@@ -8,8 +8,8 @@
 import { useAudioPlayer } from '@hooks/useAudioPlayer';
 import { useTranslation } from '@hooks/useTranslation';
 import type { MetingSong } from '@lib/meting';
-import { resolvePlaylist } from '@lib/meting';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { resolvePlaylistEx as resolvePlaylist } from '@/features/internal-audio/resolver';
 import { PlayerPlaylist } from './audio-player/PlayerPlaylist';
 import { PlayerPreview } from './audio-player/PlayerPreview';
 import { MediaControls } from './shared/MediaControls';

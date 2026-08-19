@@ -19,11 +19,11 @@ import { useTranslation } from '@hooks/useTranslation';
 import { Icon } from '@iconify/react';
 import type { BgmAudioGroup } from '@lib/config/types';
 import type { MetingSong } from '@lib/meting';
-import { resolvePlaylist } from '@lib/meting';
 import { useStore } from '@nanostores/react';
 import { $isAnyModalOpen, $isDrawerOpen } from '@store/modal';
 import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
+import { resolvePlaylistEx as resolvePlaylist } from '@/features/internal-audio/resolver';
 import { $bgmPanelOpen, closeBgmPanel } from '@/store/bgm';
 
 interface GlobalBGMPlayerProps {
